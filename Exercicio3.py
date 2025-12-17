@@ -1,105 +1,97 @@
-# Exercicio3.py
-from Exercicio1 import TreeMap
+from Exercicio1 import MapaArvore
 
-class RedBlackTreeMap(TreeMap):
-    """Sorted map implementation using a red-black tree."""
+class MapaArvoreRubroNegra(MapaArvore):
     
-    class _Node(TreeMap._Node):
-        """Node class for red-black tree maintains bit that denotes color."""
-        __slots__ = '_red'
+    class _No(MapaArvore._No):
+        __slots__ = '_eh_vermelho'
         
-        def __init__(self, element, parent=None, left=None, right=None):
-            super().__init__(element, parent, left, right)
-            self._red = True # new node red by default
+        def __init__(self, elemento, pai=None, esquerdo=None, direito=None):
+            super().__init__(elemento, pai, esquerdo, direito)
+            self._eh_vermelho = True
 
-    # Positional-based utility methods
-    def _set_red(self, p): p._node._red = True
-    def _set_black(self, p): p._node._red = False
-    def _set_color(self, p, make_red): p._node._red = make_red
+    def _definir_vermelho(self, pos): pos._no._eh_vermelho = True
+    def _definir_preto(self, pos): pos._no._eh_vermelho = False
+    def _definir_cor(self, pos, tornar_vermelho): pos._no._eh_vermelho = tornar_vermelho
     
-    def _is_red(self, p): return p is not None and p._node._red
-    def _is_red_leaf(self, p): return self._is_red(p) and self.is_leaf(p)
+    def _eh_vermelho(self, pos): return pos is not None and pos._no._eh_vermelho
+    def _eh_folha_vermelha(self, pos): return self._eh_vermelho(pos) and self.eh_folha(pos)
 
-    def _get_red_child(self, p):
-        for child in (self.left(p), self.right(p)):
-            if self._is_red(child):
-                return child
+    def _obter_filho_vermelho(self, pos):
+        for filho in (self.esquerdo(pos), self.direito(pos)):
+            if self._eh_vermelho(filho):
+                return filho
         return None
 
-    # Support for insertions
-    def _rebalance_insert(self, p):
-        self._resolve_red(p)
-
-    def _resolve_red(self, p):
-        if self.is_root(p):
-            self._set_black(p)
-        else:
-            parent = self.parent(p)
-            if self._is_red(parent):
-                uncle = self.sibling(parent)
-                if not self._is_red(uncle): # Case 1: misshapen 4-node
-                    middle = self._restructure(p)
-                    self._set_black(middle)
-                    self._set_red(self.left(middle))
-                    self._set_red(self.right(middle))
-                else: # Case 2: overfull 5-node
-                    grand = self.parent(parent)
-                    self._set_red(grand)
-                    self._set_black(self.left(grand))
-                    self._set_black(self.right(grand))
-                    self._resolve_red(grand)
-
-    def sibling(self, p):
-        """Return the position of the sibling of p."""
-        parent = self.parent(p)
-        if parent is None:
+    def irmao(self, pos):
+        pai_pos = self.pai(pos)
+        if pai_pos is None:
             return None
-        if p == self.left(parent):
-            return self.right(parent)
+        if pos == self.esquerdo(pai_pos):
+            return self.direito(pai_pos)
         else:
-            return self.left(parent)
+            return self.esquerdo(pai_pos)
 
-    # Support for deletions
-    def _rebalance_delete(self, p):
-        if len(self) == 1:
-            self._set_black(self.root())
-        elif p is not None:
-            n = self.num_children(p)
-            if n == 1: # Deficit exists unless child is red leaf
-                c = next(self.children(p)) # Iterates children generator
-                if not self._is_red_leaf(c):
-                    self._fix_deficit(p, c)
-            elif n == 2: # Removed black node with red child
-                if self._is_red_leaf(self.left(p)):
-                    self._set_black(self.left(p))
+    def filhos(self, pos):
+        if self.esquerdo(pos): yield self.esquerdo(pos)
+        if self.direito(pos): yield self.direito(pos)
+
+    def _rebalancear_insercao(self, pos):
+        self._resolver_vermelho(pos)
+
+    def _resolver_vermelho(self, pos):
+        if self.is_root(pos):
+            self._definir_preto(pos)
+        else:
+            pai_pos = self.pai(pos)
+            if self._eh_vermelho(pai_pos):
+                tio = self.irmao(pai_pos)
+                if not self._eh_vermelho(tio):
+                    meio = self._reestruturar(pos)
+                    self._definir_preto(meio)
+                    self._definir_vermelho(self.esquerdo(meio))
+                    self._definir_vermelho(self.direito(meio))
                 else:
-                    self._set_black(self.right(p))
+                    avo = self.pai(pai_pos)
+                    self._definir_vermelho(avo)
+                    self._definir_preto(self.esquerdo(avo))
+                    self._definir_preto(self.direito(avo))
+                    self._resolver_vermelho(avo)
 
-    def children(self, p):
-        if self.left(p): yield self.left(p)
-        if self.right(p): yield self.right(p)
+    def _rebalancear_delecao(self, pos):
+        if len(self) == 1:
+            self._definir_preto(self.raiz())
+        elif pos is not None:
+            n = self.num_children(pos)
+            if n == 1:
+                filho = next(self.filhos(pos))
+                if not self._eh_folha_vermelha(filho):
+                    self._corrigir_deficit(pos, filho)
+            elif n == 2:
+                if self._eh_folha_vermelha(self.esquerdo(pos)):
+                    self._definir_preto(self.esquerdo(pos))
+                else:
+                    self._definir_preto(self.direito(pos))
 
-    def _fix_deficit(self, z, y):
-        """Resolve black deficit at z, where y is the root of z's heavier subtree."""
-        if not self._is_red(y): # y is black
-            x = self._get_red_child(y)
-            if x is not None: # Case 1
-                old_color = self._is_red(z)
-                middle = self._restructure(x)
-                self._set_color(middle, old_color)
-                self._set_black(self.left(middle))
-                self._set_black(self.right(middle))
-            else: # Case 2
-                self._set_red(y)
-                if self._is_red(z):
-                    self._set_black(z)
-                elif not self.is_root(z):
-                    self._fix_deficit(self.parent(z), self.sibling(z))
-        else: # Case 3: y is red
-            self._rotate(y)
-            self._set_black(y)
-            self._set_red(z)
-            if z == self.right(y):
-                self._fix_deficit(z, self.left(z))
+    def _corrigir_deficit(self, z, y):
+        if not self._eh_vermelho(y):
+            x = self._obter_filho_vermelho(y)
+            if x is not None:
+                cor_antiga_z = self._eh_vermelho(z)
+                meio = self._reestruturar(x)
+                self._definir_cor(meio, cor_antiga_z)
+                self._definir_preto(self.esquerdo(meio))
+                self._definir_preto(self.direito(meio))
             else:
-                self._fix_deficit(z, self.right(z))
+                self._definir_vermelho(y)
+                if self._eh_vermelho(z):
+                    self._definir_preto(z)
+                elif not self.is_root(z):
+                    self._corrigir_deficit(self.pai(z), self.irmao(z))
+        else:
+            self._rotacionar(y)
+            self._definir_preto(y)
+            self._definir_vermelho(z)
+            if z == self.direito(y):
+                self._corrigir_deficit(z, self.esquerdo(z))
+            else:
+                self._corrigir_deficit(z, self.direito(z))

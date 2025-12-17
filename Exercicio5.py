@@ -1,26 +1,24 @@
-# Exercicio5.py
-from Exercicio2 import AVLTreeMap
+from Exercicio2 import MapaArvoreAVL
 
-def run_exercise_5():
+def executar_exercicio_5():
     print("--- Exercício 5 ---")
     print("Construindo a árvore AVL da Figura 11.14b...")
     
-    tree = AVLTreeMap()
-    # Ordem de inserção para recriar a estrutura da Figura 11.14b (antes da inserção do 52)
-    # Estrutura baseada nas chaves visíveis: 44 (root), 17, 62, 50, 78, 48, 54, 88
-    initial_keys = [44, 17, 62, 50, 78, 48, 54, 88]
+    arvore = MapaArvoreAVL()
+    # Chaves para recriar a estrutura da Figura 11.14b
+    chaves_iniciais = [44, 17, 62, 50, 78, 48, 54, 88]
     
-    for k in initial_keys:
-        tree[k] = None
+    for k in chaves_iniciais:
+        arvore[k] = None
     
     print("Árvore Inicial (Fig 11.14b):")
-    tree.print_tree()
+    arvore.imprimir_arvore()
     
     print("\nInserindo chave 52...")
-    tree[52] = None
+    arvore[52] = None
     
-    print("Árvore Resultante (AVL):")
-    tree.print_tree()
+    print("Árvore Resultante (AVL com rebalanceamento):")
+    arvore.imprimir_arvore()
 
 if __name__ == "__main__":
-    run_exercise_5()
+    executar_exercicio_5()
