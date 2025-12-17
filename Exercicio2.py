@@ -1,60 +1,55 @@
-# Exercicio2.py
-from Exercicio1 import TreeMap
+from Exercicio1 import MapaArvore
 
-class AVLTreeMap(TreeMap):
-    """Sorted map implementation using an AVL tree."""
+class MapaArvoreAVL(MapaArvore):
 
-    class _Node(TreeMap._Node):
-        """Node class for AVL maintains height value for balancing."""
-        __slots__ = '_height'
+    class _No(MapaArvore._No):
+        __slots__ = '_altura'
         
-        def __init__(self, element, parent=None, left=None, right=None):
-            super().__init__(element, parent, left, right)
-            self._height = 0
+        def __init__(self, elemento, pai=None, esquerdo=None, direito=None):
+            super().__init__(elemento, pai, esquerdo, direito)
+            self._altura = 0
         
-        def left_height(self):
-            return self._left._height if self._left is not None else 0
+        def altura_esquerda(self):
+            return self._esquerdo._altura if self._esquerdo is not None else 0
         
-        def right_height(self):
-            return self._right._height if self._right is not None else 0
+        def altura_direita(self):
+            return self._direito._altura if self._direito is not None else 0
 
-    # Positional-based utility methods
-    def _recompute_height(self, p):
-        p._node._height = 1 + max(p._node.left_height(), p._node.right_height())
+    def _recomputar_altura(self, pos):
+        pos._no._altura = 1 + max(pos._no.altura_esquerda(), pos._no.altura_direita())
 
-    def _isbalanced(self, p):
-        return abs(p._node.left_height() - p._node.right_height()) <= 1
+    def _esta_balanceado(self, pos):
+        return abs(pos._no.altura_esquerda() - pos._no.altura_direita()) <= 1
 
-    def _tall_child(self, p, favorleft=False):
-        if p._node.left_height() + (1 if favorleft else 0) > p._node.right_height():
-            return self.left(p)
+    def _filho_mais_alto(self, pos, pender_esquerda=False):
+        if pos._no.altura_esquerda() + (1 if pender_esquerda else 0) > pos._no.altura_direita():
+            return self.esquerdo(pos)
         else:
-            return self.right(p)
+            return self.direito(pos)
 
-    def _tall_grandchild(self, p):
-        child = self._tall_child(p)
-        alignment = (child == self.left(p))
-        return self._tall_child(child, alignment)
+    def _neto_mais_alto(self, pos):
+        filho = self._filho_mais_alto(pos)
+        alinhamento = (filho == self.esquerdo(pos))
+        return self._filho_mais_alto(filho, alinhamento)
 
-    def _rebalance(self, p):
-        while p is not None:
-            old_height = p._node._height
-            if not self._isbalanced(p):
-                # perform restructuring
-                # lift p to be the root of the restructured subtree
-                # so we can recompute heights properly
-                p = self._restructure(self._tall_grandchild(p))
-                self._recompute_height(self.left(p))
-                self._recompute_height(self.right(p))
-            self._recompute_height(p)
-            if p._node._height == old_height:
-                p = None # stop if no height change
+    def _rebalancear(self, pos):
+        while pos is not None:
+            altura_antiga = pos._no._altura
+            if not self._esta_balanceado(pos):
+                pos = self._reestruturar(self._neto_mais_alto(pos))
+                self._recomputar_altura(self.esquerdo(pos))
+                self._recomputar_altura(self.direito(pos))
+            
+            self._recomputar_altura(pos)
+            
+            if pos._no._altura == altura_antiga:
+                pos = None
             else:
-                p = self.parent(p)
+                pos = self.pai(pos)
 
-    # Override balancing hooks
-    def _rebalance_insert(self, p):
-        self._rebalance(p)
+    def _rebalancear_insercao(self, pos):
+        self._rebalancear(pos)
 
-    def _rebalance_delete(self, p):
-        self._rebalance(p)
+    def _rebalancear_delecao(self, pos):
+        if pos is not None:
+            self._rebalancear(pos)

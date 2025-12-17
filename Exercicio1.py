@@ -1,343 +1,297 @@
-# Exercicio1.py
 from collections.abc import MutableMapping
 
-# --- Classes Base (Dependências dos Capítulos 8 e 10) ---
-
-class MapBase(MutableMapping):
+class MapaBase(MutableMapping):
     class _Item:
-        __slots__ = '_key', '_value'
+        __slots__ = '_chave', '_valor'
         def __init__(self, k, v):
-            self._key = k
-            self._value = v
-        def __eq__(self, other):
-            return self._key == other._key
-        def __ne__(self, other):
-            return not (self == other)
-        def __lt__(self, other):
-            return self._key < other._key
+            self._chave = k
+            self._valor = v
+        def __eq__(self, outro):
+            return self._chave == outro._chave
+        def __ne__(self, outro):
+            return not (self == outro)
+        def __lt__(self, outro):
+            return self._chave < outro._chave
 
-class LinkedBinaryTree:
-    class _Node:
-        __slots__ = '_element', '_parent', '_left', '_right'
-        def __init__(self, element, parent=None, left=None, right=None):
-            self._element = element
-            self._parent = parent
-            self._left = left
-            self._right = right
+class ArvoreBinariaEncadeada:
+    class _No:
+        __slots__ = '_elemento', '_pai', '_esquerdo', '_direito'
+        def __init__(self, elemento, pai=None, esquerdo=None, direito=None):
+            self._elemento = elemento
+            self._pai = pai
+            self._esquerdo = esquerdo
+            self._direito = direito
 
-    class Position:
-        def __init__(self, container, node):
+    class Posicao:
+        def __init__(self, container, no):
             self._container = container
-            self._node = node
-        def element(self):
-            return self._node._element
-        def __eq__(self, other):
-            return type(other) is type(self) and other._node is self._node
-        def __ne__(self, other):
-            return not (self == other)
+            self._no = no
+        def elemento(self):
+            return self._no._elemento
+        def __eq__(self, outro):
+            return type(outro) is type(self) and outro._no is self._no
+        def __ne__(self, outro):
+            return not (self == outro)
 
-    def _validate(self, p):
-        if not isinstance(p, self.Position):
-            raise TypeError('p must be proper Position type')
-        if p._container is not self:
-            raise ValueError('p does not belong to this container')
-        if p._node._parent is p._node: 
-            raise ValueError('p is no longer valid')
-        return p._node
+    def _validar(self, pos):
+        if not isinstance(pos, self.Posicao):
+            raise TypeError('pos deve ser do tipo Posicao')
+        if pos._container is not self:
+            raise ValueError('pos não pertence a esta árvore')
+        if pos._no._pai is pos._no: 
+            raise ValueError('pos não é mais válida')
+        return pos._no
 
-    def _make_position(self, node):
-        return self.Position(self, node) if node is not None else None
+    def _criar_posicao(self, no):
+        return self.Posicao(self, no) if no is not None else None
 
     def __init__(self):
-        self._root = None
-        self._size = 0
+        self._raiz = None
+        self._tamanho = 0
 
     def __len__(self):
-        return self._size
+        return self._tamanho
 
-    def root(self):
-        return self._make_position(self._root)
+    def raiz(self):
+        return self._criar_posicao(self._raiz)
 
-    def parent(self, p):
-        node = self._validate(p)
-        return self._make_position(node._parent)
+    def pai(self, pos):
+        no = self._validar(pos)
+        return self._criar_posicao(no._pai)
 
-    def left(self, p):
-        node = self._validate(p)
-        return self._make_position(node._left)
+    def esquerdo(self, pos):
+        no = self._validar(pos)
+        return self._criar_posicao(no._esquerdo)
 
-    def right(self, p):
-        node = self._validate(p)
-        return self._make_position(node._right)
+    def direito(self, pos):
+        no = self._validar(pos)
+        return self._criar_posicao(no._direito)
 
-    def num_children(self, p):
-        node = self._validate(p)
-        count = 0
-        if node._left is not None: count += 1
-        if node._right is not None: count += 1
-        return count
+    def num_filhos(self, pos):
+        no = self._validar(pos)
+        total = 0
+        if no._esquerdo is not None: total += 1
+        if no._direito is not None: total += 1
+        return total
 
-    def _add_root(self, e):
-        if self._root is not None: raise ValueError('Root exists')
-        self._size = 1
-        self._root = self._Node(e)
-        return self._make_position(self._root)
+    def _adicionar_raiz(self, e):
+        if self._raiz is not None: raise ValueError('Raiz já existe')
+        self._tamanho = 1
+        self._raiz = self._No(e)
+        return self._criar_posicao(self._raiz)
 
-    def _add_left(self, p, e):
-        node = self._validate(p)
-        if node._left is not None: raise ValueError('Left child exists')
-        self._size += 1
-        node._left = self._Node(e, node)
-        return self._make_position(node._left)
+    def _adicionar_esquerdo(self, pos, e):
+        no = self._validar(pos)
+        if no._esquerdo is not None: raise ValueError('Filho esquerdo já existe')
+        self._tamanho += 1
+        no._esquerdo = self._No(e, no)
+        return self._criar_posicao(no._esquerdo)
 
-    def _add_right(self, p, e):
-        node = self._validate(p)
-        if node._right is not None: raise ValueError('Right child exists')
-        self._size += 1
-        node._right = self._Node(e, node)
-        return self._make_position(node._right)
+    def _adicionar_direito(self, pos, e):
+        no = self._validar(pos)
+        if no._direito is not None: raise ValueError('Filho direito já existe')
+        self._tamanho += 1
+        no._direito = self._No(e, no)
+        return self._criar_posicao(no._direito)
 
-    def _replace(self, p, e):
-        node = self._validate(p)
-        old = node._element
-        node._element = e
-        return old
+    def _substituir(self, pos, e):
+        no = self._validar(pos)
+        antigo = no._elemento
+        no._elemento = e
+        return antigo
 
-    def _delete(self, p):
-        node = self._validate(p)
-        if self.num_children(p) == 2: raise ValueError('p has two children')
-        child = node._left if node._left else node._right
-        if child is not None:
-            child._parent = node._parent
-        if node is self._root:
-            self._root = child
+    def _deletar(self, pos):
+        no = self._validar(pos)
+        if self.num_filhos(pos) == 2: raise ValueError('pos tem dois filhos')
+        filho = no._esquerdo if no._esquerdo else no._direito
+        if filho is not None:
+            filho._pai = no._pai
+        if no is self._raiz:
+            self._raiz = filho
         else:
-            parent = node._parent
-            if node is parent._left:
-                parent._left = child
+            pai = no._pai
+            if no is pai._esquerdo:
+                pai._esquerdo = filho
             else:
-                parent._right = child
-        self._size -= 1
-        node._parent = node
-        return node._element
+                pai._direito = filho
+        self._tamanho -= 1
+        no._pai = no
+        return no._elemento
 
-    def _attach(self, p, t1, t2):
-        node = self._validate(p)
-        if not self.is_leaf(p): raise ValueError('position must be leaf')
-        if not type(self) is type(t1) is type(t2): raise TypeError('Tree types must match')
-        self._size += len(t1) + len(t2)
-        if not t1.is_empty():
-            t1._root._parent = node
-            node._left = t1._root
-            t1._root = None
-            t1._size = 0
-        if not t2.is_empty():
-            t2._root._parent = node
-            node._right = t2._root
-            t2._root = None
-            t2._size = 0
-
-    def is_empty(self):
+    def esta_vazia(self):
         return len(self) == 0
     
-    def is_leaf(self, p):
-        return self.num_children(p) == 0
+    def eh_folha(self, pos):
+        return self.num_filhos(pos) == 0
 
-    def is_root(self, p):
-        return self.root() == p
+class MapaArvore(ArvoreBinariaEncadeada, MapaBase):
+    class Posicao(ArvoreBinariaEncadeada.Posicao):
+        def chave(self):
+            return self.elemento()._chave
+        def valor(self):
+            return self.elemento()._valor
 
-# --- Implementação do TreeMap (Exercício 1) ---
-
-class TreeMap(LinkedBinaryTree, MapBase):
-    """Sorted map implementation using a binary search tree."""
-
-    # Override Position class
-    class Position(LinkedBinaryTree.Position):
-        def key(self):
-            return self.element()._key
-        def value(self):
-            return self.element()._value
-
-    # Nonpublic utilities
-    def _subtree_search(self, p, k):
-        """Return Position of p's subtree having key k, or last node searched."""
-        if k == p.key():
-            return p
-        elif k < p.key():
-            if self.left(p) is not None:
-                return self._subtree_search(self.left(p), k)
+    def _busca_subarvore(self, pos, k):
+        if k == pos.chave():
+            return pos
+        elif k < pos.chave():
+            if self.esquerdo(pos) is not None:
+                return self._busca_subarvore(self.esquerdo(pos), k)
         else:
-            if self.right(p) is not None:
-                return self._subtree_search(self.right(p), k)
-        return p
+            if self.direito(pos) is not None:
+                return self._busca_subarvore(self.direito(pos), k)
+        return pos
 
-    def _subtree_first_position(self, p):
-        walk = p
-        while self.left(walk) is not None:
-            walk = self.left(walk)
-        return walk
+    def _primeira_posicao_subarvore(self, pos):
+        atual = pos
+        while self.esquerdo(atual) is not None:
+            atual = self.esquerdo(atual)
+        return atual
 
-    def _subtree_last_position(self, p):
-        walk = p
-        while self.right(walk) is not None:
-            walk = self.right(walk)
-        return walk
+    def _ultima_posicao_subarvore(self, pos):
+        atual = pos
+        while self.direito(atual) is not None:
+            atual = self.direito(atual)
+        return atual
 
-    # Public methods
-    def first(self):
-        return self._subtree_first_position(self.root()) if len(self) > 0 else None
+    def primeiro(self):
+        return self._primeira_posicao_subarvore(self.raiz()) if len(self) > 0 else None
 
-    def last(self):
-        return self._subtree_last_position(self.root()) if len(self) > 0 else None
+    def ultimo(self):
+        return self._ultima_posicao_subarvore(self.raiz()) if len(self) > 0 else None
 
-    def before(self, p):
-        self._validate(p)
-        if self.left(p):
-            return self._subtree_last_position(self.left(p))
+    def anterior(self, pos):
+        self._validar(pos)
+        if self.esquerdo(pos):
+            return self._ultima_posicao_subarvore(self.esquerdo(pos))
         else:
-            walk = p
-            above = self.parent(walk)
-            while above is not None and walk == self.left(above):
-                walk = above
-                above = self.parent(walk)
-            return above
+            atual = pos
+            pai_atual = self.pai(atual)
+            while pai_atual is not None and atual == self.esquerdo(pai_atual):
+                atual = pai_atual
+                pai_atual = self.pai(atual)
+            return pai_atual
 
-    def after(self, p):
-        self._validate(p)
-        if self.right(p):
-            return self._subtree_first_position(self.right(p))
+    def proximo(self, pos):
+        self._validar(pos)
+        if self.direito(pos):
+            return self._primeira_posicao_subarvore(self.direito(pos))
         else:
-            walk = p
-            above = self.parent(walk)
-            while above is not None and walk == self.right(above):
-                walk = above
-                above = self.parent(walk)
-            return above
+            atual = pos
+            pai_atual = self.pai(atual)
+            while pai_atual is not None and atual == self.direito(pai_atual):
+                atual = pai_atual
+                pai_atual = self.pai(atual)
+            return pai_atual
 
-    def find_position(self, k):
-        if self.is_empty():
+    def buscar_posicao(self, k):
+        if self.esta_vazia():
             return None
-        else:
-            p = self._subtree_search(self.root(), k)
-            self._rebalance_access(p)
-            return p
-
-    def find_min(self):
-        if self.is_empty(): return None
-        p = self.first()
-        return (p.key(), p.value())
-
-    def find_ge(self, k):
-        if self.is_empty(): return None
-        p = self.find_position(k)
-        if p.key() < k:
-            p = self.after(p)
-        return (p.key(), p.value()) if p is not None else None
+        pos = self._busca_subarvore(self.raiz(), k)
+        self._rebalancear_acesso(pos)
+        return pos
 
     def __getitem__(self, k):
-        if self.is_empty():
-            raise KeyError('Key Error: ' + repr(k))
-        p = self._subtree_search(self.root(), k)
-        self._rebalance_access(p)
-        if k != p.key():
-            raise KeyError('Key Error: ' + repr(k))
-        return p.value()
+        if self.esta_vazia():
+            raise KeyError('Erro de Chave: ' + repr(k))
+        pos = self._busca_subarvore(self.raiz(), k)
+        self._rebalancear_acesso(pos)
+        if k != pos.chave():
+            raise KeyError('Erro de Chave: ' + repr(k))
+        return pos.valor()
 
     def __setitem__(self, k, v):
-        if self.is_empty():
-            leaf = self._add_root(self._Item(k, v))
+        if self.esta_vazia():
+            folha = self._adicionar_raiz(self._Item(k, v))
         else:
-            p = self._subtree_search(self.root(), k)
-            if p.key() == k:
-                p.element()._value = v
-                self._rebalance_access(p)
+            pos = self._busca_subarvore(self.raiz(), k)
+            if pos.chave() == k:
+                pos.elemento()._valor = v
+                self._rebalancear_acesso(pos)
                 return
             else:
-                item = self._Item(k, v)
-                if p.key() < k:
-                    leaf = self._add_right(p, item)
+                novo_item = self._Item(k, v)
+                if pos.chave() < k:
+                    folha = self._adicionar_direito(pos, novo_item)
                 else:
-                    leaf = self._add_left(p, item)
-        self._rebalance_insert(leaf)
+                    folha = self._adicionar_esquerdo(pos, novo_item)
+        self._rebalancear_insercao(folha)
 
     def __delitem__(self, k):
-        if not self.is_empty():
-            p = self._subtree_search(self.root(), k)
-            if k == p.key():
-                self.delete(p)
+        if not self.esta_vazia():
+            pos = self._busca_subarvore(self.raiz(), k)
+            if k == pos.chave():
+                self.deletar(pos)
                 return
-            self._rebalance_access(p)
-        raise KeyError('Key Error: ' + repr(k))
+            self._rebalancear_acesso(pos)
+        raise KeyError('Erro de Chave: ' + repr(k))
 
     def __iter__(self):
-        p = self.first()
-        while p is not None:
-            yield p.key()
-            p = self.after(p)
+        pos = self.primeiro()
+        while pos is not None:
+            yield pos.chave()
+            pos = self.proximo(pos)
 
-    def delete(self, p):
-        self._validate(p)
-        if self.left(p) and self.right(p):
-            replacement = self._subtree_last_position(self.left(p))
-            self._replace(p, replacement.element())
-            p = replacement
+    def deletar(self, pos):
+        self._validar(pos)
+        if self.esquerdo(pos) and self.direito(pos):
+            substituto = self._ultima_posicao_subarvore(self.esquerdo(pos))
+            self._substituir(pos, substituto.elemento())
+            pos = substituto
         
-        parent = self.parent(p)
-        self._delete(p)
-        self._rebalance_delete(parent)
+        pai_no = self.pai(pos)
+        self._deletar(pos)
+        self._rebalancear_delecao(pai_no)
 
-    # Hooks for balancing
-    def _rebalance_insert(self, p): pass
-    def _rebalance_delete(self, p): pass
-    def _rebalance_access(self, p): pass
+    def _rebalancear_insercao(self, pos): pass
+    def _rebalancear_delecao(self, pos): pass
+    def _rebalancear_acesso(self, pos): pass
 
-    # Balancing utilities
-    def _relink(self, parent, child, make_left_child):
-        if make_left_child:
-            parent._left = child
+    def _relinkar(self, pai, filho, eh_filho_esquerdo):
+        if eh_filho_esquerdo:
+            pai._esquerdo = filho
         else:
-            parent._right = child
-        if child is not None:
-            child._parent = parent
+            pai._direito = filho
+        if filho is not None:
+            filho._pai = pai
 
-    def _rotate(self, p):
-        x = p._node
-        y = x._parent
-        z = y._parent
+    def _rotacionar(self, pos):
+        x = pos._no
+        y = x._pai
+        z = y._pai
         if z is None:
-            self._root = x
-            x._parent = None
+            self._raiz = x
+            x._pai = None
         else:
-            self._relink(z, x, y == z._left)
+            self._relinkar(z, x, y == z._esquerdo)
         
-        if x == y._left:
-            self._relink(y, x._right, True)
-            self._relink(x, y, False)
+        if x == y._esquerdo:
+            self._relinkar(y, x._direito, True)
+            self._relinkar(x, y, False)
         else:
-            self._relink(y, x._left, False)
-            self._relink(x, y, True)
+            self._relinkar(y, x._esquerdo, False)
+            self._relinkar(x, y, True)
 
-    def _restructure(self, x):
-        y = self.parent(x)
-        z = self.parent(y)
-        if (x == self.right(y)) == (y == self.right(z)):
-            self._rotate(y)
+    def _reestruturar(self, x):
+        y = self.pai(x)
+        z = self.pai(y)
+        if (x == self.direito(y)) == (y == self.direito(z)):
+            self._rotacionar(y)
             return y
         else:
-            self._rotate(x)
-            self._rotate(x)
+            self._rotacionar(x)
+            self._rotacionar(x)
             return x
 
-    def print_tree(self):
-        """Helper to visualize tree for exercises"""
-        if self.is_empty():
-            print("Empty Tree")
+    def imprimir_arvore(self):
+        if self.esta_vazia():
+            print("Árvore Vazia")
             return
-        self._print_subtree(self.root(), 0)
+        self._imprimir_subarvore(self.raiz(), 0)
 
-    def _print_subtree(self, p, depth):
-        print("  " * depth + str(p.key()))
-        if self.left(p):
-            self._print_subtree(self.left(p), depth + 1)
-        if self.right(p):
-            self._print_subtree(self.right(p), depth + 1)
+    def _imprimir_subarvore(self, pos, nivel):
+        print("  " * nivel + str(pos.chave()))
+        if self.esquerdo(pos):
+            self._imprimir_subarvore(self.esquerdo(pos), nivel + 1)
+        if self.direito(pos):
+            self._imprimir_subarvore(self.direito(pos), nivel + 1)
