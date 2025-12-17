@@ -1,12 +1,8 @@
 import sys
 import os
-
-# Importando as classes para o modo interativo
-from Exercicio1 import TreeMap
-from Exercicio2 import AVLTreeMap
-from Exercicio3 import RedBlackTreeMap
-
-# Importando os scripts de resolução dos exercícios específicos
+from Exercicio1 import MapaArvore
+from Exercicio2 import MapaArvoreAVL
+from Exercicio3 import MapaArvoreRubroNegra
 import Exercicio4
 import Exercicio5
 import Exercicio6
@@ -15,52 +11,42 @@ import Exercicio7
 def limpar_tela():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def imprimir_cabecalho():
-    print("="*50)
-    print("      TRABALHO 3 - ESTRUTURA DE DADOS")
-    print("      Árvores de Busca, AVL e Rubro-Negras")
-    print("="*50)
-
 def menu_principal():
     while True:
-        imprimir_cabecalho()
-        print("\nEscolha uma opção para executar:")
-        print("1. Executar Exercício 4 (Inserção em BST)")
-        print("2. Executar Exercício 5 (Inserção em AVL - Caso da Fig 11.14b)")
-        print("3. Executar Exercício 6 (Remoção em AVL - Caso da Fig 11.14b)")
-        print("4. Executar Exercício 7 (Inserção em Rubro-Negra)")
-        print("-" * 30)
-        print("5. Modo Playground (Criar e testar suas próprias árvores)")
-        print("-" * 30)
+        print("Escolha uma opção para executar:")
+        print("1. Exercício 4")
+        print("2.Exercício 5")
+        print("3.Exercício 6")
+        print("4.Exercício 7")
         print("0. Sair")
         
-        opcao = input("\nOpção: ")
+        opcao = input("sua opcao: ")
 
         if opcao == '1':
             limpar_tela()
-            Exercicio4.run_exercise_4()
-            input("\nPressione Enter para voltar...")
+            Exercicio4.executar_exercicio_4()
+            input("\nPressione Enter para voltar ao menu...")
             limpar_tela()
         elif opcao == '2':
             limpar_tela()
-            Exercicio5.run_exercise_5()
-            input("\nPressione Enter para voltar...")
+            Exercicio5.executar_exercicio_5()
+            input("\nPressione Enter para voltar ao menu...")
             limpar_tela()
         elif opcao == '3':
             limpar_tela()
-            Exercicio6.run_exercise_6()
-            input("\nPressione Enter para voltar...")
+            Exercicio6.executar_exercicio_6()
+            input("\nPressione Enter para voltar ao menu...")
             limpar_tela()
         elif opcao == '4':
             limpar_tela()
-            Exercicio7.run_exercise_7()
-            input("\nPressione Enter para voltar...")
+            Exercicio7.executar_exercicio_7()
+            input("\nPressione Enter para voltar ao menu...")
             limpar_tela()
         elif opcao == '5':
             limpar_tela()
             modo_playground()
         elif opcao == '0':
-            print("Saindo...")
+            print("Encerrando o programa...")
             sys.exit()
         else:
             print("Opção inválida!")
@@ -68,71 +54,68 @@ def menu_principal():
             limpar_tela()
 
 def modo_playground():
-    print("\n--- MODO PLAYGROUND ---")
-    print("Teste as implementações dos Exercícios 1, 2 e 3.")
-    print("Qual tipo de árvore deseja criar?")
-    print("1. TreeMap (Árvore Binária de Busca Padrão)")
-    print("2. AVLTreeMap (Árvore AVL)")
-    print("3. RedBlackTreeMap (Árvore Rubro-Negra)")
+    print("Escolha o tipo de estrutura para testar:")
+    print("1. Mapa com Árvore Binária Simples")
+    print("2. Mapa com Árvore AVL")
+    print("3. Mapa com Árvore Rubro-Negra")
     
     tipo = input("Escolha: ")
-    tree = None
+    arvore = None
     nome_arvore = ""
 
     if tipo == '1':
-        tree = TreeMap()
-        nome_arvore = "BST Padrão"
+        arvore = MapaArvore()
+        nome_arvore = "Busca Binária Simples"
     elif tipo == '2':
-        tree = AVLTreeMap()
+        arvore = MapaArvoreAVL()
         nome_arvore = "AVL"
     elif tipo == '3':
-        tree = RedBlackTreeMap()
+        arvore = MapaArvoreRubroNegra()
         nome_arvore = "Rubro-Negra"
     else:
-        print("Tipo inválido. Voltando ao menu.")
+        print("Tipo inválido. Retornando ao menu.")
         return
 
-    print(f"\nÁrvore {nome_arvore} criada com sucesso!")
+    print(f"\nSucesso: {nome_arvore} pronta para uso!")
     
     while True:
         print(f"\n--- Operações em {nome_arvore} ---")
         print("1. Inserir chave")
         print("2. Remover chave")
         print("3. Buscar chave")
-        print("4. Visualizar Árvore")
-        print("0. Voltar ao Menu Principal")
+        print("4. Visualizar Estrutura")
+        print("0. Sair do Playground")
         
         op = input("Opção: ")
         
         try:
             if op == '1':
-                val = int(input("Digite um número inteiro para inserir: "))
-                tree[val] = f"Valor-{val}" # Valor genérico
-                print(f"Chave {val} inserida.")
+                chave = int(input("Digite um número (chave): "))
+                arvore[chave] = f"Dado-{chave}"
+                print(f"Chave {chave} inserida com sucesso.")
             
             elif op == '2':
-                val = int(input("Digite a chave para remover: "))
-                del tree[val]
-                print(f"Chave {val} removida.")
+                chave = int(input("Digite a chave para remover: "))
+                del arvore[chave]
+                print(f"Chave {chave} removida.")
             
             elif op == '3':
-                val = int(input("Digite a chave para buscar: "))
-                res = tree.get(val) # Usa o get do MapBase/Python dict
-                if res:
-                    print(f"Encontrado! Valor associado: {res}")
+                chave = int(input("Digite a chave para buscar: "))
+                resultado = arvore.get(chave)
+                if resultado:
+                    print(f"Sucesso! Valor encontrado: {resultado}")
                 else:
-                    print("Chave não encontrada.")
+                    print("Aviso: Chave não encontrada.")
             
             elif op == '4':
-                print("\nEstrutura Atual:")
-                if tree.is_empty():
-                    print("(Árvore Vazia)")
+                print("\nVisualização da Estrutura Atual:")
+                if arvore.esta_vazia():
+                    print("(A árvore está vazia)")
                 else:
-                    # Se for Rubro-Negra, usamos uma visualização especial para ver as cores
-                    if isinstance(tree, RedBlackTreeMap):
-                        visualizar_rb(tree, tree.root())
+                    if isinstance(arvore, MapaArvoreRubroNegra):
+                        visualizar_cores_rn(arvore, arvore.raiz())
                     else:
-                        tree.print_tree()
+                        arvore.imprimir_arvore()
             
             elif op == '0':
                 limpar_tela()
@@ -142,28 +125,27 @@ def modo_playground():
                 print("Opção inválida.")
         
         except KeyError:
-            print("Erro: Chave não encontrada para remoção.")
+            print("Erro: Esta chave não existe na árvore.")
         except ValueError:
-            print("Erro: Digite um número válido.")
+            print("Erro: Por favor, insira apenas números inteiros.")
         except Exception as e:
-            print(f"Erro inesperado: {e}")
+            print(f"Ocorreu um erro inesperado: {e}")
 
-def visualizar_rb(tree, p, depth=0):
-    """Auxiliar para imprimir árvore Rubro-Negra com as cores"""
-    if p is None: return
+def visualizar_cores_rn(arvore, pos, nivel=0):
+    if pos is None: return
     
-    color = "RED" if tree._is_red(p) else "BLACK"
-    print("  " * depth + f"{p.key()} [{color}]")
+    cor = "VERMELHO" if arvore._eh_vermelho(pos) else "PRETO"
+    print("  " * nivel + f"{pos.chave()} [{cor}]")
     
-    if tree.left(p):
-        visualizar_rb(tree, tree.left(p), depth + 1)
-    elif tree.right(p): # Se tem filho direito mas não esquerdo, imprime placeholder para visualização
-        print("  " * (depth + 1) + "(None)")
+    if arvore.esquerdo(pos):
+        visualizar_cores_rn(arvore, arvore.esquerdo(pos), nivel + 1)
+    elif arvore.direito(pos):
+        print("  " * (nivel + 1) + "(Vazio)")
 
-    if tree.right(p):
-        visualizar_rb(tree, tree.right(p), depth + 1)
-    elif tree.left(p):
-        print("  " * (depth + 1) + "(None)")
+    if arvore.direito(pos):
+        visualizar_cores_rn(arvore, arvore.direito(pos), nivel + 1)
+    elif arvore.esquerdo(pos):
+        print("  " * (nivel + 1) + "(Vazio)")
 
 if __name__ == "__main__":
     menu_principal()

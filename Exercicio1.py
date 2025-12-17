@@ -193,11 +193,11 @@ class MapaArvore(ArvoreBinariaEncadeada, MapaBase):
 
     def __getitem__(self, k):
         if self.esta_vazia():
-            raise KeyError('Erro de Chave: ' + repr(k))
+            print("erro")
         pos = self._busca_subarvore(self.raiz(), k)
         self._rebalancear_acesso(pos)
         if k != pos.chave():
-            raise KeyError('Erro de Chave: ' + repr(k))
+            print("erro")
         return pos.valor()
 
     def __setitem__(self, k, v):
@@ -224,7 +224,7 @@ class MapaArvore(ArvoreBinariaEncadeada, MapaBase):
                 self.deletar(pos)
                 return
             self._rebalancear_acesso(pos)
-        raise KeyError('Erro de Chave: ' + repr(k))
+        print("erro")
 
     def __iter__(self):
         pos = self.primeiro()
@@ -285,7 +285,7 @@ class MapaArvore(ArvoreBinariaEncadeada, MapaBase):
 
     def imprimir_arvore(self):
         if self.esta_vazia():
-            print("Árvore Vazia")
+            print("arvore vazia")
             return
         self._imprimir_subarvore(self.raiz(), 0)
 
